@@ -1,9 +1,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdint.h>
 
 #define BITS_IN_BYTE 8
-#define MAX_BYTE 0xFF
 
 const char *hexvals = "0123456789ABCDEF";
 
@@ -37,15 +37,21 @@ void hex2bin (const char *hexstr, const size_t hexlen, char *buffer, const size_
 
 void bitoffset (const char *from, const size_t len, char *dest, const size_t offset) {
   memset(dest, 0, len);
-
-  const size_t offset_comp = BITS_IN_BYTE - offset;
-  const unsigned char left_mask = (0x1 << offset_comp) - 1;
-  const unsigned char right_mask = MAX_BYTE ^ left_mask;
   
   size_t i = 0;
-  for (; i < len; i++) {
-    
+  for (; i < len - 1; i++) {
+    dest[i] = from[i] << offset;
+    dest[i] |= from[i + 1] >> (BITS_IN_BYTE - offset);
   }
+}
+
+void printhex (const char *buffer, const size_t bufferlen) {
+  size_t i = 0;
+  for (; i < bufferlen; i++) {
+    printf("%c", hexvals[(buffer[i] >> 4) & 0x0F]);
+    printf("%c", hexvals[buffer[i] & 0x0F]);
+  }
+  printf("\n");
 }
 
 /*argv[1] should be the buffer input as a hex string*/
@@ -61,6 +67,9 @@ int main (int argc, char **argv) {
 
   char offset_buffer[bufferlen];
   bitoffset(buffer, bufferlen, offset_buffer, pos);
+
+  printhex(buffer, bufferlen);
+  printhex(offset_buffer, bufferlen);
 
   return EXIT_SUCCESS;
 }
