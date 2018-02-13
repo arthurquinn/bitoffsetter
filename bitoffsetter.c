@@ -3,9 +3,15 @@
 #include <string.h>
 #include <stdint.h>
 
+#define BASE_10 10
 #define BITS_IN_BYTE 8
 
 const char *hexvals = "0123456789ABCDEF";
+
+void usage (const char *exename, const char *msg) {
+  printf("%s\n", msg);
+  printf("usage: %s <offset> <hex_string>\n", exename);
+}
 
 const char hexval (const char c) {
   const char *hptr = strchr(hexvals, c);
@@ -56,11 +62,31 @@ void printhex (const char *buffer, const size_t bufferlen) {
   printf("\n");
 }
 
-/*argv[1] should be the buffer input as a hex string*/
-/*argv[2] should be the offset into the buffer for realignment*/
+/*argv[2] should be the buffer input as a hex string*/
+/*argv[1] should be the offset into the buffer for realignment*/
 int main (int argc, char **argv) {
-  const char *hexstr = argv[1];
-  const size_t pos = strtol(argv[2], NULL, 10);
+
+  if (argc < 3) {
+    usage(argv[0], "missing args\n");
+    return EXIT_FAILURE;
+  }
+
+  char *endptr;
+
+  const char *hexstr = argv[2];
+  const size_t pos = strtoul(argv[1], &endptr, BASE_10);
+
+  if (*endptr != 0) {
+    printf("bad offset: %s, ", argv[1]);
+    usage(argv[0], "should be 0-8");
+    return EXIT_FAILURE;
+  }
+
+  if (pos < 0 || pos > 8) {
+    printf("bad offset: %d, ", (int)pos);
+    usage(argv[0], "should be 0-8");
+    return EXIT_FAILURE;
+  }
 
   const size_t hexlen = strlen(hexstr);
   const size_t bufferlen = hexlen % 2 == 0 ? hexlen / 2 : hexlen / 2 + 1;
