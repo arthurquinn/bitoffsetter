@@ -43,6 +43,8 @@ void bitoffset (const char *from, const size_t len, char *dest, const size_t off
     dest[i] = from[i] << offset;
     dest[i] |= from[i + 1] >> (BITS_IN_BYTE - offset);
   }
+
+  dest[len - 1] = from[len - 1] << offset;
 }
 
 void printhex (const char *buffer, const size_t bufferlen) {
