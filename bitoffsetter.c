@@ -39,12 +39,12 @@ void bitoffset (const char *from, const size_t len, char *dest, const size_t off
   memset(dest, 0, len);
   
   size_t i = 0;
-  for (; i < len - 1; i++) {
+  for (; i < len; i++) {
     dest[i] = from[i] << offset;
-    dest[i] |= from[i + 1] >> (BITS_IN_BYTE - offset);
+    if (i < len - 1) {
+      dest[i] |= from[i + 1] >> (BITS_IN_BYTE - offset);
+    }
   }
-
-  dest[len - 1] = from[len - 1] << offset;
 }
 
 void printhex (const char *buffer, const size_t bufferlen) {
