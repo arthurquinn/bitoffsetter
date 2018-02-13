@@ -43,12 +43,15 @@ void hex2bin (const char *hexstr, const size_t hexlen, char *buffer, const size_
 
 void bitoffset (const char *from, const size_t len, char *dest, const size_t offset) {
   memset(dest, 0, len);
-  
+
+  const char right_mask = (0x1 << offset) - 1;
+  const char left_mask = right_mask ^ 0xFF;
+
   size_t i = 0;
   for (; i < len; i++) {
-    dest[i] = from[i] << offset;
+    dest[i] = (from[i] << offset) & left_mask;
     if (i < len - 1) {
-      dest[i] |= from[i + 1] >> (BITS_IN_BYTE - offset);
+      dest[i] |= (from[i + 1] >> (BITS_IN_BYTE - offset)) & right_mask;
     }
   }
 }
@@ -72,7 +75,6 @@ int main (int argc, char **argv) {
   }
 
   char *endptr;
-
   const char *hexstr = argv[2];
   const size_t pos = strtoul(argv[1], &endptr, BASE_10);
 
